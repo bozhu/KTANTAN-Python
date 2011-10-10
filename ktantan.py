@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/bin/env python
 
 # ktantan-32
 LEN_L_1 = 13
@@ -97,7 +97,7 @@ def ktantan(state, key):
 
 if __name__ == '__main__':
     import sys
-    text = [1] * 64
+    text = [0] * 64
     key = [1] * 80
     ktantan(text, key)
     for i in range(31, 0, -1):
