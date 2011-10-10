@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 # ktantan-32
 LEN_L_1 = 13
