@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 class KTANTAN():
-    def __init__(self, master_key = None, version = 32):
+    def __init__(self, master_key = [0] * 80, version = 32):
         assert version in (32, 48, 64)
         self.version = version
 
@@ -20,6 +20,11 @@ class KTANTAN():
             self.__LEN_L_2 = 39
             self.__X = (None, 24, 15, 20, 11, 9)
             self.__Y = (None, 38, 25, 33, 21, 14, 9)
+
+        self.change_key(master_key)
+
+    def change_key(self, master_key):
+        self.__key = master_key
 
     __IR = (
         1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 
@@ -77,7 +82,6 @@ class KTANTAN():
         12,   8,  16,  32,  64,  16,  33,  66,  52,  73,  50,  53,  59,  55,
     )
 
-
     def __one_round_enc(self, round):
         output_a = self.__state[self.__LEN_L_2 + self.__X[1]]  \
                  ^ self.__state[self.__LEN_L_2 + self.__X[2]]  \
@@ -109,4 +113,10 @@ class KTANTAN():
 
 
 if __name__ == '__main__':
-    pass
+    key = [0] * 80
+    text = [1] * 32
+
+    myKTANTAN = KTANTAN(key)
+
+    print myKTANTAN.enc(text)
+    
