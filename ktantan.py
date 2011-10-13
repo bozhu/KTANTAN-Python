@@ -120,12 +120,12 @@ class KTANTAN():
         self.L2.insert(0, self.f_a)
 
 
-    def enc(self, plaintext, num_rounds = 254):
+    def enc(self, plaintext, from_round = 0, to_round = 253):
         self.plaintext_bits = num2bits(plaintext, self.version)
         self.L2 = self.plaintext_bits[:self.LEN_L2]
         self.L1 = self.plaintext_bits[self.LEN_L2:]
 
-        for round in range(num_rounds):
+        for round in range(from_round, to_round + 1):
             self.one_round_enc(round)
             if self.version > 32:
                 self.one_round_enc(round)
@@ -134,18 +134,50 @@ class KTANTAN():
         return bits2num(self.L2 + self.L1)
 
 
-    def dec(self, ciphertext):
-        assert False, "Not implemented!"
+    def one_round_dec(self, round):
+        self.f_a = self.L2[0] ^ self.L1[self.X[2] + 1]              \
+                ^ (self.L1[self.X[3] + 1] & self.L1[self.X[4] + 1]) \
+                ^ (self.L1[self.X[5] + 1] & IR[round])              \
+                ^ self.key[k_a_index[round]]
+
+        self.f_b = self.L1[0] ^ self.L2[self.Y[2] + 1]              \
+                ^ (self.L2[self.Y[3] + 1] & self.L2[self.Y[4] + 1]) \
+                ^ (self.L2[self.Y[5] + 1] & self.L2[self.Y[6] + 1]) \
+                ^ self.key[k_b_index[round]]
+
+        self.L1.pop(0)
+        self.L1.append(self.f_a)
+
+        self.L2.pop(0)
+        self.L2.append(self.f_b)
+
+
+    def dec(self, ciphertext, from_round = 253, to_round = 0):
+        self.ciphertext_bits = num2bits(ciphertext, self.version)
+        self.L2 = self.ciphertext_bits[:self.LEN_L2]
+        self.L1 = self.ciphertext_bits[self.LEN_L2:]
+
+        for round in range(from_round, to_round - 1, -1):
+            self.one_round_dec(round)
+            if self.version > 32:
+                self.one_round_dec(round)
+                if self.version > 48:
+                    self.one_round_dec(round)
+        return bits2num(self.L2 + self.L1)
+
 
 
 if __name__ == '__main__':
-    key = 0xFFFFFFFFFFFFFFFFFFFE
-    plaintext = 0x00000001
+    key = 0xFFFFFFFFFFFFFFFFFFFF
+    plaintext = 0x00000000
 
     myKTANTAN = KTANTAN(key)
 
     print 'key =', hex(key)
     print 'plain =', hex(plaintext)
 
-    print hex(myKTANTAN.enc(plaintext))[2:].upper()
+    encrypted = myKTANTAN.enc(plaintext)
+    print 'encrypted =', hex(encrypted)
+    decrypted = myKTANTAN.dec(encrypted)
+    print 'decrypted =', hex(decrypted)
     
